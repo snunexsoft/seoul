@@ -1032,6 +1032,70 @@ app.get('/api/boards', authMiddleware, (req, res) => {
   });
 });
 
+// ========== 인포그래픽 게시판 API (DB 연동) - :slug 라우트보다 먼저 선언 ==========
+app.get('/api/boards/infographic/posts', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 9;
+  const offset = (page - 1) * limit;
+
+  db.get("SELECT id FROM boards WHERE slug = 'info'", (err, board) => {
+    if (err || !board) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    db.get('SELECT COUNT(*) as total FROM posts WHERE board_id = ?', [board.id], (err, countRow) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      db.all(
+        'SELECT * FROM posts WHERE board_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [board.id, limit, offset],
+        (err, rows) => {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+          res.json({
+            posts: rows.map(r => ({
+              ...r,
+              imageUrl: r.featured_image || null,
+              description: r.excerpt || r.content,
+              views: r.view_count || 0,
+              createdAt: r.created_at,
+              category: null
+            })),
+            currentPage: page,
+            totalPages: Math.ceil(countRow.total / limit),
+            totalPosts: countRow.total
+          });
+        }
+      );
+    });
+  });
+});
+
+app.get('/api/boards/infographic/posts/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  db.get('SELECT * FROM posts WHERE id = ?', [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
+    }
+    // 조회수 증가
+    db.run('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
+    res.json({
+      ...row,
+      imageUrl: row.featured_image || null,
+      description: row.excerpt || row.content,
+      views: (row.view_count || 0) + 1,
+      createdAt: row.created_at,
+      category: null
+    });
+  });
+});
+
 // 공개 API - 인증 불필요
 app.get('/api/boards/:slug', (req, res) => {
   const { slug } = req.params;
@@ -1587,70 +1651,6 @@ app.delete('/api/history/:id', authMiddleware, (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     res.json({ success: true });
-  });
-});
-
-// ========== 인포그래픽 게시판 API (DB 연동) ==========
-app.get('/api/boards/infographic/posts', (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 9;
-  const offset = (page - 1) * limit;
-
-  db.get("SELECT id FROM boards WHERE slug = 'info'", (err, board) => {
-    if (err || !board) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-
-    db.get('SELECT COUNT(*) as total FROM posts WHERE board_id = ?', [board.id], (err, countRow) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-
-      db.all(
-        'SELECT * FROM posts WHERE board_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-        [board.id, limit, offset],
-        (err, rows) => {
-          if (err) {
-            return res.status(500).json({ error: 'Database error' });
-          }
-          res.json({
-            posts: rows.map(r => ({
-              ...r,
-              imageUrl: r.featured_image || null,
-              description: r.excerpt || r.content,
-              views: r.view_count || 0,
-              createdAt: r.created_at,
-              category: null
-            })),
-            currentPage: page,
-            totalPages: Math.ceil(countRow.total / limit),
-            totalPosts: countRow.total
-          });
-        }
-      );
-    });
-  });
-});
-
-app.get('/api/boards/infographic/posts/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  db.get('SELECT * FROM posts WHERE id = ?', [id], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!row) {
-      return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
-    }
-    // 조회수 증가
-    db.run('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
-    res.json({
-      ...row,
-      imageUrl: row.featured_image || null,
-      description: row.excerpt || row.content,
-      views: (row.view_count || 0) + 1,
-      createdAt: row.created_at,
-      category: null
-    });
   });
 });
 

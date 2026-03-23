@@ -25,16 +25,13 @@ export default function Files() {
   const fetchFiles = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/files', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
         const data = await response.json();
-        setFiles(data.results || []);
+        setFiles(data.files || []);
       } else {
         // Sample files for demo
         setFiles([
@@ -107,7 +104,6 @@ export default function Files() {
     if (selectedFiles.length === 0) return;
 
     setUploading(true);
-    const token = localStorage.getItem('token');
 
     try {
       for (const file of selectedFiles) {
@@ -115,11 +111,9 @@ export default function Files() {
         formData.append('file', file);
         formData.append('name', file.name);
 
-        const response = await fetch('/api/files', {
+        const response = await fetch('/api/files/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          credentials: 'include',
           body: formData
         });
 
@@ -142,12 +136,9 @@ export default function Files() {
     if (!confirm('이 파일을 삭제하시겠습니까?')) return;
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/files/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {

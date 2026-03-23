@@ -56,11 +56,8 @@ export default function Dashboard() {
     // Fetch stats from API
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
         const response = await fetch('/api/dashboard/stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          credentials: 'include'
         });
         
         if (response.ok) {

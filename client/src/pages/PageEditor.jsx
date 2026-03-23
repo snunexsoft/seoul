@@ -23,11 +23,8 @@ export default function PageEditor() {
   const fetchPage = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/pages/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -60,17 +57,16 @@ export default function PageEditor() {
 
     setSaving(true);
     try {
-      const token = localStorage.getItem('token');
       const url = id
         ? `/api/pages/${id}`
         : '/api/pages';
-      
+
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
