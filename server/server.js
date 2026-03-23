@@ -1614,7 +1614,14 @@ app.get('/api/boards/infographic/posts', (req, res) => {
             return res.status(500).json({ error: 'Database error' });
           }
           res.json({
-            posts: rows,
+            posts: rows.map(r => ({
+              ...r,
+              imageUrl: r.featured_image || null,
+              description: r.excerpt || r.content,
+              views: r.view_count || 0,
+              createdAt: r.created_at,
+              category: null
+            })),
             currentPage: page,
             totalPages: Math.ceil(countRow.total / limit),
             totalPosts: countRow.total
@@ -1636,7 +1643,14 @@ app.get('/api/boards/infographic/posts/:id', (req, res) => {
     }
     // 조회수 증가
     db.run('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
-    res.json(row);
+    res.json({
+      ...row,
+      imageUrl: row.featured_image || null,
+      description: row.excerpt || row.content,
+      views: (row.view_count || 0) + 1,
+      createdAt: row.created_at,
+      category: null
+    });
   });
 });
 

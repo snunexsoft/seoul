@@ -16,7 +16,7 @@ export default function PageView() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/api/pages/${slug}`);
+      const response = await fetch(`/api/pages/${slug}`);
       
       if (response.ok) {
         const data = await response.json();

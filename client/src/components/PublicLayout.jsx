@@ -12,7 +12,7 @@ export default function PublicLayout() {
 
   const fetchMenus = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/menus/public');
+      const response = await fetch('/api/menus/public');
       if (response.ok) {
         const data = await response.json();
         setMenus(data);

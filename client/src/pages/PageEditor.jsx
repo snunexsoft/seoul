@@ -24,7 +24,7 @@ export default function PageEditor() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/pages/${id}`, {
+      const response = await fetch(`/api/pages/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -61,9 +61,9 @@ export default function PageEditor() {
     setSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const url = id 
-        ? `http://localhost:3001/api/pages/${id}`
-        : 'http://localhost:3001/api/pages';
+      const url = id
+        ? `/api/pages/${id}`
+        : '/api/pages';
       
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
