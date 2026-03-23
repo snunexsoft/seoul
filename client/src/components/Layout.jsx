@@ -15,7 +15,9 @@ import {
   SparklesIcon,
   BoltIcon,
   SunIcon,
-  PresentationChartLineIcon
+  PresentationChartLineIcon,
+  LinkIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -27,7 +29,9 @@ import {
   DocumentIcon as DocumentIconSolid,
   BoltIcon as BoltIconSolid,
   SunIcon as SunIconSolid,
-  PresentationChartLineIcon as PresentationChartLineIconSolid
+  PresentationChartLineIcon as PresentationChartLineIconSolid,
+  LinkIcon as LinkIconSolid,
+  ClockIcon as ClockIconSolid
 } from '@heroicons/react/24/solid';
 
 export default function Layout({ handleLogout }) {
@@ -45,6 +49,8 @@ export default function Layout({ handleLogout }) {
     { name: '카테고리 관리', href: '/admin/categories', icon: TagIcon },
     { name: '에너지 데이터 관리', href: '/admin/energy-data', icon: BoltIcon },
     { name: '태양광 발전 관리', href: '/admin/solar-data', icon: SunIcon },
+    { name: '링크 게시글 관리', href: '/admin/link-posts', icon: LinkIcon },
+    { name: '연혁 관리', href: '/admin/history', icon: ClockIcon },
   ];
 
   const onLogout = async () => {
@@ -97,7 +103,9 @@ export default function Layout({ handleLogout }) {
                  item.name === '파일 관리' ? PhotoIconSolid :
                  item.name === '카테고리 관리' ? TagIconSolid :
                  item.name === '에너지 데이터 관리' ? BoltIconSolid :
-                 item.name === '태양광 발전 관리' ? SunIconSolid : item.icon) 
+                 item.name === '태양광 발전 관리' ? SunIconSolid :
+                 item.name === '링크 게시글 관리' ? LinkIconSolid :
+                 item.name === '연혁 관리' ? ClockIconSolid : item.icon)
                 : item.icon;
               
               return (

@@ -15,6 +15,8 @@ import PageEditor from './pages/PageEditor';
 import EnergyData from './pages/EnergyData';
 import SolarData from './pages/SolarData';
 import HeroSlides from './pages/HeroSlides';
+import LinkPosts from './pages/LinkPosts';
+import HistoryAdmin from './pages/HistoryAdmin';
 import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import PageView from './pages/PageView';
@@ -195,6 +197,8 @@ function App() {
               <Route path="energy-data" element={<EnergyData />} />
               <Route path="solar-data" element={<SolarData />} />
               <Route path="hero-slides" element={<HeroSlides />} />
+              <Route path="link-posts" element={<LinkPosts />} />
+              <Route path="history" element={<HistoryAdmin />} />
             </Route>
           ) : (
             <Route path="/admin/*" element={<Navigate to="/admin/login" />} />

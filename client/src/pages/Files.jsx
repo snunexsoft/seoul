@@ -26,7 +26,7 @@ export default function Files() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/files/', {
+      const response = await fetch('/api/files', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -115,7 +115,7 @@ export default function Files() {
         formData.append('file', file);
         formData.append('name', file.name);
 
-        const response = await fetch('http://localhost:8000/api/files/', {
+        const response = await fetch('/api/files', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -143,7 +143,7 @@ export default function Files() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/api/files/${id}/`, {
+      const response = await fetch(`/api/files/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
