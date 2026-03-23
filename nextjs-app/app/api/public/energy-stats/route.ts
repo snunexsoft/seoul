@@ -1,57 +1,125 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { dbQuery } from '@/lib/database';
 
-// GET /api/public/energy-stats - 공개용 에너지 통계
+// GET /api/public/energy-stats - 공개용 에너지 통계 (DB 연동)
 export async function GET(_request: NextRequest) {
   try {
-    // 더미 데이터 반환
-    const data = {
-      success: true,
-      data: {
-        currentYear: 2024,
-        totals: { 
-          total_electricity: 15234567, 
-          total_gas: 8765432, 
-          total_water: 345678 
-        },
-        previousYearTotals: { 
-          total_electricity: 16234567, 
-          total_gas: 9765432, 
-          total_water: 365678 
-        },
-        monthlyUsage: [
-          { month: 1, electricity: 1234567, gas: 876543, water: 34567 },
-          { month: 2, electricity: 1345678, gas: 765432, water: 33456 },
-          { month: 3, electricity: 1456789, gas: 654321, water: 32345 },
-          { month: 4, electricity: 1234567, gas: 543210, water: 31234 },
-          { month: 5, electricity: 1123456, gas: 432109, water: 30123 },
-          { month: 6, electricity: 1012345, gas: 321098, water: 29012 }
-        ],
-        solarGeneration: [
-          { month: 1, generation: 234567 },
-          { month: 2, generation: 245678 },
-          { month: 3, generation: 256789 },
-          { month: 4, generation: 267890 },
-          { month: 5, generation: 278901 },
-          { month: 6, generation: 289012 }
-        ],
-        solarTotal: 3456789,
-        efficiency: {
-          electricity: 6.16,
-          gas: 10.26,
-          water: 5.47
-        },
-      },
-    };
+    const currentYear = new Date().getFullYear();
+    const previousYear = currentYear - 1;
 
-    return NextResponse.json(data);
+    // 올해 에너지 총 사용량
+    const currentTotals = await dbQuery.get<{
+      total_electricity: number;
+      total_gas: number;
+      total_water: number;
+    }>(`
+      SELECT
+        COALESCE(SUM(electricity), 0) as total_electricity,
+        COALESCE(SUM(gas), 0) as total_gas,
+        COALESCE(SUM(water), 0) as total_water
+      FROM energy_data
+      WHERE year = $1
+    `, [currentYear]);
+
+    // 전년도 에너지 총 사용량
+    const previousTotals = await dbQuery.get<{
+      total_electricity: number;
+      total_gas: number;
+      total_water: number;
+    }>(`
+      SELECT
+        COALESCE(SUM(electricity), 0) as total_electricity,
+        COALESCE(SUM(gas), 0) as total_gas,
+        COALESCE(SUM(water), 0) as total_water
+      FROM energy_data
+      WHERE year = $1
+    `, [previousYear]);
+
+    // 월별 에너지 사용량 (올해)
+    const monthlyUsage = await dbQuery.all<{
+      month: number;
+      electricity: number;
+      gas: number;
+      water: number;
+    }>(`
+      SELECT
+        month,
+        COALESCE(SUM(electricity), 0) as electricity,
+        COALESCE(SUM(gas), 0) as gas,
+        COALESCE(SUM(water), 0) as water
+      FROM energy_data
+      WHERE year = $1
+      GROUP BY month
+      ORDER BY month
+    `, [currentYear]);
+
+    // 태양광 월별 발전량 (올해)
+    const solarGeneration = await dbQuery.all<{
+      month: number;
+      generation: number;
+    }>(`
+      SELECT
+        month,
+        COALESCE(SUM(generation), 0) as generation
+      FROM solar_data
+      WHERE year = $1
+      GROUP BY month
+      ORDER BY month
+    `, [currentYear]);
+
+    // 태양광 총 발전량 (올해)
+    const solarTotal = await dbQuery.get<{ total_solar: number }>(`
+      SELECT COALESCE(SUM(generation), 0) as total_solar
+      FROM solar_data
+      WHERE year = $1
+    `, [currentYear]);
+
+    // 변화율 계산
+    const elecPrev = previousTotals?.total_electricity || 1;
+    const gasPrev = previousTotals?.total_gas || 1;
+    const waterPrev = previousTotals?.total_water || 1;
+
+    const electricityChange = ((currentTotals?.total_electricity || 0) - elecPrev) / elecPrev * 100;
+    const gasChange = ((currentTotals?.total_gas || 0) - gasPrev) / gasPrev * 100;
+    const waterChange = ((currentTotals?.total_water || 0) - waterPrev) / waterPrev * 100;
+
+    // 에너지원 비율
+    const totalEnergy = (currentTotals?.total_electricity || 0) + (currentTotals?.total_gas || 0) + (solarTotal?.total_solar || 0);
+    const energySourceRatio = totalEnergy > 0 ? [
+      { name: '전기', value: Math.round(((currentTotals?.total_electricity || 0) / totalEnergy) * 100) },
+      { name: '가스', value: Math.round(((currentTotals?.total_gas || 0) / totalEnergy) * 100) },
+      { name: '태양광', value: Math.round(((solarTotal?.total_solar || 0) / totalEnergy) * 100) },
+    ] : [];
+
+    return NextResponse.json({
+      currentYear,
+      totals: {
+        electricity: Math.round(currentTotals?.total_electricity || 0),
+        gas: Math.round(currentTotals?.total_gas || 0),
+        solar: Math.round(solarTotal?.total_solar || 0),
+      },
+      monthlyUsage: monthlyUsage.map(item => ({
+        month: item.month,
+        electricity: Math.round(item.electricity),
+        gas: Math.round(item.gas),
+        water: Math.round(item.water),
+      })),
+      solarGeneration: solarGeneration.map(item => ({
+        month: item.month,
+        generation: Math.round(item.generation),
+      })),
+      energySourceRatio,
+      changes: {
+        electricity: parseFloat(electricityChange.toFixed(1)),
+        gas: parseFloat(gasChange.toFixed(1)),
+        water: parseFloat(waterChange.toFixed(1)),
+      },
+    });
   } catch (error) {
     console.error('Energy stats fetch error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        message: '에너지 통계 조회 중 오류가 발생했습니다.',
-      },
+      { success: false, message: '에너지 통계 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
-} 
+}

@@ -5,6 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar
 } from 'recharts';
+import axios from 'axios';
 import Header from '../../components/Header';
 
 // TypeScript interfaces
@@ -64,135 +65,77 @@ const CountUp: React.FC<CountUpProps> = ({ end, duration = 2000, suffix = '' }) 
 };
 
 const SolarPower: React.FC = () => {
-  const [selectedYear, setSelectedYear] = useState<string>('2024');
+  const [selectedYear, setSelectedYear] = useState<string>(String(new Date().getFullYear()));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [years, setYears] = useState<string[]>([]);
+  const [currentYearData, setCurrentYearData] = useState<YearlyData>({
+    total: 0, monthlyAverage: 0, carbonReduction: 0, monthlyGeneration: []
+  });
+  const [yearlyTrendData, setYearlyTrendData] = useState<YearlyTrendData[]>([]);
 
-  const years: string[] = ['2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016'];
+  const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
-  // 연도별 태양광 발전량 데이터
-  const solarGenerationData: Record<string, YearlyData> = {
-    '2024': {
-      total: 1261489,
-      monthlyAverage: 210248,
-      carbonReduction: 587,
-      monthlyGeneration: [
-        { month: '1월', generation: 118456 },
-        { month: '2월', generation: 142789 },
-        { month: '3월', generation: 215634 },
-        { month: '4월', generation: 234567 },
-        { month: '5월', generation: 287923 },
-        { month: '6월', generation: 245678 },
-        { month: '7월', generation: 0 },
-        { month: '8월', generation: 0 },
-        { month: '9월', generation: 0 },
-        { month: '10월', generation: 0 },
-        { month: '11월', generation: 0 },
-        { month: '12월', generation: 0 }
-      ]
-    },
-    '2023': {
-      total: 1782921,
-      monthlyAverage: 148577,
-      carbonReduction: 830,
-      monthlyGeneration: [
-        { month: '1월', generation: 108234 },
-        { month: '2월', generation: 126789 },
-        { month: '3월', generation: 189456 },
-        { month: '4월', generation: 167890 },
-        { month: '5월', generation: 198765 },
-        { month: '6월', generation: 234567 },
-        { month: '7월', generation: 256789 },
-        { month: '8월', generation: 245678 },
-        { month: '9월', generation: 189345 },
-        { month: '10월', generation: 156234 },
-        { month: '11월', generation: 89567 },
-        { month: '12월', generation: 0 }
-      ]
-    },
-    '2022': {
-      total: 1654782,
-      monthlyAverage: 137899,
-      carbonReduction: 770,
-      monthlyGeneration: [
-        { month: '1월', generation: 95234 },
-        { month: '2월', generation: 115789 },
-        { month: '3월', generation: 178456 },
-        { month: '4월', generation: 156890 },
-        { month: '5월', generation: 187765 },
-        { month: '6월', generation: 223567 },
-        { month: '7월', generation: 245789 },
-        { month: '8월', generation: 234678 },
-        { month: '9월', generation: 178345 },
-        { month: '10월', generation: 145234 },
-        { month: '11월', generation: 78567 },
-        { month: '12월', generation: 10468 }
-      ]
-    },
-    '2021': {
-      total: 1456932,
-      monthlyAverage: 121411,
-      carbonReduction: 679,
-      monthlyGeneration: [
-        { month: '1월', generation: 87234 },
-        { month: '2월', generation: 98789 },
-        { month: '3월', generation: 156456 },
-        { month: '4월', generation: 134890 },
-        { month: '5월', generation: 165765 },
-        { month: '6월', generation: 198567 },
-        { month: '7월', generation: 218789 },
-        { month: '8월', generation: 207678 },
-        { month: '9월', generation: 156345 },
-        { month: '10월', generation: 123234 },
-        { month: '11월', generation: 67567 },
-        { month: '12월', generation: 41818 }
-      ]
-    },
-    '2020': {
-      total: 1298456,
-      monthlyAverage: 108205,
-      carbonReduction: 605,
-      monthlyGeneration: [
-        { month: '1월', generation: 78234 },
-        { month: '2월', generation: 89789 },
-        { month: '3월', generation: 134456 },
-        { month: '4월', generation: 123890 },
-        { month: '5월', generation: 145765 },
-        { month: '6월', generation: 178567 },
-        { month: '7월', generation: 198789 },
-        { month: '8월', generation: 187678 },
-        { month: '9월', generation: 134345 },
-        { month: '10월', generation: 103234 },
-        { month: '11월', generation: 56567 },
-        { month: '12월', generation: 67342 }
-      ]
-    }
-  };
-
-  // 연간 태양광 발전량 추이 데이터
-  const yearlyTrendData: YearlyTrendData[] = [
-    { year: '2014', generation: 185247 },
-    { year: '2015', generation: 789456 },
-    { year: '2016', generation: 823456 },
-    { year: '2017', generation: 1189567 },
-    { year: '2018', generation: 1287654 },
-    { year: '2019', generation: 1398765 },
-    { year: '2020', generation: 1298456 },
-    { year: '2021', generation: 1456932 },
-    { year: '2022', generation: 1654782 },
-    { year: '2023', generation: 1782921 },
-    { year: '2024', generation: 1261489 }
-  ];
-
-  const currentYearData = solarGenerationData[selectedYear] || solarGenerationData['2024'];
-
+  // 선택 연도 데이터 로드
   useEffect(() => {
-    // 태양광 데이터 로딩 시뮬레이션
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    const fetchYearData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/solar?year=${selectedYear}`);
+        const rows = response.data?.data || response.data || [];
+        const dataArr = Array.isArray(rows) ? rows : [];
 
-    return () => clearTimeout(timer);
+        const monthlyMap: Record<number, number> = {};
+        dataArr.forEach((row: { month: number; generation: number }) => {
+          monthlyMap[row.month] = (monthlyMap[row.month] || 0) + Number(row.generation || 0);
+        });
+
+        const monthlyGeneration = monthNames.map((name, i) => ({
+          month: name, generation: Math.round(monthlyMap[i + 1] || 0)
+        }));
+        const total = monthlyGeneration.reduce((sum, m) => sum + m.generation, 0);
+        const activeMonths = monthlyGeneration.filter(m => m.generation > 0).length || 1;
+
+        setCurrentYearData({
+          total,
+          monthlyAverage: Math.round(total / activeMonths),
+          carbonReduction: Math.round(total * 0.4781 / 1000),
+          monthlyGeneration
+        });
+      } catch (err) {
+        console.error('Failed to fetch solar data:', err);
+        setError('태양광 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchYearData();
+  }, [selectedYear]);
+
+  // 연도 목록 + 연간 추이
+  useEffect(() => {
+    const fetchTrend = async () => {
+      try {
+        const response = await axios.get('/api/solar');
+        const rows = response.data?.data || response.data || [];
+        const dataArr = Array.isArray(rows) ? rows : [];
+
+        const yearMap: Record<number, number> = {};
+        dataArr.forEach((row: { year: number; generation: number }) => {
+          yearMap[row.year] = (yearMap[row.year] || 0) + Number(row.generation || 0);
+        });
+
+        setYears(Object.keys(yearMap).sort((a, b) => Number(b) - Number(a)));
+        setYearlyTrendData(
+          Object.entries(yearMap)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .map(([year, gen]) => ({ year, generation: Math.round(gen) }))
+        );
+      } catch (err) {
+        console.error('Failed to fetch yearly trend:', err);
+      }
+    };
+    fetchTrend();
   }, []);
 
   if (loading) {
