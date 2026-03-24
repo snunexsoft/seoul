@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 
 // 인증 없이 접근 가능한 공개 API 경로
 const PUBLIC_API_ROUTES = [
@@ -25,11 +25,12 @@ function isPublicApiRoute(path: string): boolean {
   return PUBLIC_API_ROUTES.some(route => path.startsWith(route));
 }
 
-function verifyTokenInMiddleware(token: string): boolean {
+async function verifyTokenInMiddleware(token: string): Promise<boolean> {
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) return false;
-    jwt.verify(token, secret);
+    const encodedSecret = new TextEncoder().encode(secret);
+    await jwtVerify(token, encodedSecret);
     return true;
   } catch {
     return false;
@@ -61,7 +62,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const adminToken = request.cookies.get('admin-token')?.value;
-    if (!adminToken || !verifyTokenInMiddleware(adminToken)) {
+    if (!adminToken || !(await verifyTokenInMiddleware(adminToken))) {
       return NextResponse.json(
         { error: '인증이 필요합니다.' },
         { status: 401 }
@@ -79,7 +80,7 @@ export async function middleware(request: NextRequest) {
     // JWT 토큰 검증
     const adminToken = request.cookies.get('admin-token')?.value;
 
-    if (!adminToken || !verifyTokenInMiddleware(adminToken)) {
+    if (!adminToken || !(await verifyTokenInMiddleware(adminToken))) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
