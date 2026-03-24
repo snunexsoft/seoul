@@ -37,7 +37,7 @@ async function verifyTokenInMiddleware(token: string): Promise<boolean> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const response = NextResponse.next();
 
