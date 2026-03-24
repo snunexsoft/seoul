@@ -5,5 +5,11 @@
       "src": "nextjs-app/package.json",
       "use": "@vercel/next"
     }
+  ],
+  "routes": [
+    {
+      "src": "/((?!nextjs-app/).*)",
+      "dest": "/nextjs-app/$1"
+    }
   ]
 }
