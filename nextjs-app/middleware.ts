@@ -93,8 +93,5 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/api/:path*',
-    '/img/:path*',
-    '/downloads/:path*',
-    '/_next/static/:path*'
   ]
 };
