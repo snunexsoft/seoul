@@ -5,11 +5,5 @@
       "src": "nextjs-app/package.json",
       "use": "@vercel/next"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/nextjs-app/$1"
-    }
   ]
 }
