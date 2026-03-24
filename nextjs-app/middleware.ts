@@ -7,6 +7,14 @@ const PUBLIC_API_ROUTES = [
   '/api/auth/login',
   '/api/auth/check',
   '/api/public/',
+  '/api/boards',
+  '/api/pages/',
+  '/api/history',
+  '/api/hero-slides',
+  '/api/menus',
+  '/api/solar',
+  '/api/buildings',
+  '/api/post/',
 ];
 
 function isPublicApiRoute(path: string): boolean {
