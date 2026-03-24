@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { dbQuery } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -6,23 +7,27 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const searchParams = request.nextUrl.searchParams;
-    const queryString = searchParams.toString();
-    
-    // 백엔드 서버로 요청 프록시
-    const apiUrl = `${process.env.API_URL || 'http://localhost:10000'}/api/boards/${slug}/posts${queryString ? `?${queryString}` : ''}`;
-    const response = await fetch(apiUrl);
 
-    if (!response.ok) {
-      const error = await response.text();
+    // 보드 조회
+    const board = await dbQuery.get<{ id: number }>(
+      'SELECT id FROM boards WHERE slug = $1',
+      [slug]
+    );
+
+    if (!board) {
       return NextResponse.json(
-        { error: error || 'Failed to fetch posts' },
-        { status: response.status }
+        { error: 'Board not found' },
+        { status: 404 }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // 해당 보드의 게시글 조회
+    const posts = await dbQuery.all(
+      'SELECT * FROM posts WHERE board_id = $1 ORDER BY created_at DESC',
+      [board.id]
+    );
+
+    return NextResponse.json(posts);
   } catch (error) {
     console.error('Failed to fetch posts:', error);
     return NextResponse.json(

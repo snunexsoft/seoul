@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { dbQuery } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -6,21 +7,23 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
-    // 백엔드 서버로 요청 프록시
-    const apiUrl = `${process.env.API_URL || 'http://localhost:10000'}/api/post/${id}`;
-    const response = await fetch(apiUrl);
 
-    if (!response.ok) {
-      const error = await response.text();
+    const post = await dbQuery.get(
+      `SELECT p.*, b.name as board_name, b.slug as board_slug_name
+       FROM posts p LEFT JOIN boards b ON p.board_id = b.id
+       WHERE p.id = $1`, [id]);
+
+    if (!post) {
       return NextResponse.json(
-        { error: error || 'Post not found' },
-        { status: response.status }
+        { error: '게시글을 찾을 수 없습니다' },
+        { status: 404 }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // 조회수 증가
+    await dbQuery.run('UPDATE posts SET view_count = view_count + 1 WHERE id = $1', [id]);
+
+    return NextResponse.json(post);
   } catch (error) {
     console.error('Failed to fetch post:', error);
     return NextResponse.json(
