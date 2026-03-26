@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import Header from '../../components/Header';
 
@@ -24,29 +25,26 @@ const categories = [
   { id: '기후과학 연구', name: '기후과학 연구' },
 ];
 
-const leftLinks = [
-  { name: '기타, 환경, 과정 등', count: 5, postId: 1 },
-  { name: '탄소 포집, 저장 활용 및 처리', count: 8, postId: 2 },
-  { name: '무탄소 전력 공급', count: 12, postId: 3 },
-  { name: '청정 열 및 전기화', count: 7, postId: 4 },
-  { name: '바이오매스 모빌 건설시스템', count: 3, postId: 5 },
-  { name: '화학적 에너지 기술 관리', count: 15, postId: 6 },
-  { name: '전환 및 동력 시설', count: 6, postId: 1 },
-  { name: '산업공정 및 제품', count: 9, postId: 2 },
-  { name: '차세대 농업기술 개발', count: 4, postId: 3 },
-  { name: '에너지 효율성 및 수요', count: 11, postId: 4 },
-  { name: '탄소 흡수원', count: 2, postId: 5 }
-];
+
 
 const mockPosts: BoardPost[] = [];
 
 export default function CarbonTechPage() {
-  const [activeCategory, setActiveCategory] = useState('탄소중립 기술');
-  const [selectedLink, setSelectedLink] = useState('기타, 환경, 과정 등');
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeCategory, setActiveCategory] = useState(tabFromUrl || '탄소중립 기술');
+  const [selectedLink, setSelectedLink] = useState('');
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== activeCategory) {
+      setActiveCategory(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  useEffect(() => {
+    setSelectedLink('');
     fetchLinkPosts();
   }, [activeCategory]);
 
@@ -76,6 +74,19 @@ export default function CarbonTechPage() {
     }
   };
   
+  // 현재 탭 게시글의 main_category에서 동적으로 사이드 메뉴 생성
+  const leftLinks = Array.from(new Set(posts.map(p => p.main_category).filter(Boolean))).map(name => ({
+    name: name as string,
+    count: posts.filter(p => p.main_category === name).length
+  }));
+
+  // 첫 번째 카테고리 자동 선택
+  useEffect(() => {
+    if (leftLinks.length > 0 && !selectedLink) {
+      setSelectedLink(leftLinks[0].name);
+    }
+  }, [leftLinks.length]);
+
   // 선택된 링크에 따라 표시할 게시물 찾기
   const selectedPost = posts.find(post => post.main_category === selectedLink);
 
@@ -152,6 +163,9 @@ export default function CarbonTechPage() {
             <div className="w-[280px] pr-8">
               <h3 className="text-xl font-bold text-[#6ECD8E] mb-6">연구 분야</h3>
               <div className="space-y-2">
+                {leftLinks.length === 0 && !loading && (
+                  <p className="text-gray-400 text-sm p-4">등록된 게시글이 없습니다.</p>
+                )}
                 {leftLinks.map((link, index) => (
                   <div
                     key={index}
@@ -165,7 +179,7 @@ export default function CarbonTechPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium leading-tight">{link.name}</span>
                       <span className="text-xs opacity-75 ml-2">
-                        {posts.filter(post => post.main_category === link.name).length}
+                        {link.count}
                       </span>
                     </div>
                   </div>
