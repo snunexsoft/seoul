@@ -12,6 +12,7 @@ interface LinkPost {
   image_url?: string;
   main_category: string;
   sub_category: string;
+  section?: string;
   status: 'published' | 'draft';
   created_at: string;
   updated_at: string;
@@ -62,6 +63,7 @@ const LinkPostsPage = () => {
     image_url: '',
     main_category: '',
     sub_category: '',
+    section: '탄소중립 기술',
     status: 'published' as 'published' | 'draft'
   });
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -129,6 +131,7 @@ const LinkPostsPage = () => {
       image_url: post.image_url || '',
       main_category: post.main_category,
       sub_category: post.sub_category,
+      section: post.section || '탄소중립 기술',
       status: post.status
     });
     setShowForm(true);
@@ -195,6 +198,7 @@ const LinkPostsPage = () => {
       image_url: '',
       main_category: '',
       sub_category: '',
+      section: '탄소중립 기술',
       status: 'published'
     });
   };
