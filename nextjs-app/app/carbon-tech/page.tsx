@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import Header from '../../components/Header';
 
@@ -30,18 +30,18 @@ const categories = [
 const mockPosts: BoardPost[] = [];
 
 export default function CarbonTechPage() {
-  const searchParams = useSearchParams();
-  const tabFromUrl = searchParams.get('tab');
-  const [activeCategory, setActiveCategory] = useState(tabFromUrl || '탄소중립 기술');
+  const [activeCategory, setActiveCategory] = useState('탄소중립 기술');
   const [selectedLink, setSelectedLink] = useState('');
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    if (tabFromUrl && tabFromUrl !== activeCategory) {
-      setActiveCategory(tabFromUrl);
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) {
+      setActiveCategory(tab);
     }
-  }, [tabFromUrl]);
+  }, []);
 
   useEffect(() => {
     setSelectedLink('');
