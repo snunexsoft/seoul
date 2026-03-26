@@ -74,29 +74,3 @@ export async function GET() {
     return NextResponse.json({ error: '메뉴를 불러오는데 실패했습니다' }, { status: 500 });
   }
 }
-export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const key = searchParams.get('key');
-  if (key !== 'update-urls-2026') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    const updates = [
-      { id: 37, url: '/carbon-tech?tab=연구자 소개' },
-      { id: 38, url: '/carbon-tech?tab=연구 프로젝트' },
-      { id: 39, url: '/carbon-tech?tab=협력 프로그램' },
-      { id: 40, url: '/carbon-tech?tab=탄소중립 기술' },
-      { id: 41, url: '/carbon-tech?tab=기후과학 연구' },
-    ];
-
-    for (const u of updates) {
-      await dbQuery.run("UPDATE menus SET url = $1 WHERE id = $2", [u.url, u.id]);
-    }
-
-    const menus = await dbQuery.all("SELECT id, name, url FROM menus WHERE parent_id = 15");
-    return NextResponse.json({ success: true, menus });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
