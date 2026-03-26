@@ -74,22 +74,3 @@ export async function GET() {
     return NextResponse.json({ error: '메뉴를 불러오는데 실패했습니다' }, { status: 500 });
   }
 }
-
-// POST - 중복 서브메뉴 정리
-export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const key = searchParams.get('key');
-  if (key !== 'cleanup-2026') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    // 중복된 id:2, id:3 삭제 (시퀀스 충돌로 잘못 들어간 항목)
-    await dbQuery.run("DELETE FROM menus WHERE id = 2 AND name = '연구자 소개' AND parent_id = 15");
-    await dbQuery.run("DELETE FROM menus WHERE id = 3 AND name = '연구 프로젝트' AND parent_id = 15");
-    
-    return NextResponse.json({ success: true, message: '중복 서브메뉴 삭제 완료 (id:2, id:3)' });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
