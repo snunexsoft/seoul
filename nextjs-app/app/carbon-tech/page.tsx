@@ -100,7 +100,7 @@ export default function CarbonTechPage() {
 
   const fetchLinkPosts = async () => {
     try {
-      const response = await fetch('http://localhost:10000/api/public/link-posts');
+      const response = await fetch('/api/public/link-posts');
       if (response.ok) {
         const data = await response.json();
         // 링크 게시글을 BoardPost 형식으로 변환
