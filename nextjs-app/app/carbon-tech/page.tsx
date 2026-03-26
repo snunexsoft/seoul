@@ -17,10 +17,11 @@ interface BoardPost {
 }
 
 const categories = [
-  { id: 'link1', name: '링크게시판', active: true },
-  { id: 'link2', name: '링크게시판', active: false },
-  { id: 'link3', name: '링크게시판', active: false },
-  { id: 'link4', name: '링크게시판', active: false }
+  { id: '연구자 소개', name: '연구자 소개' },
+  { id: '연구 프로젝트', name: '연구 프로젝트' },
+  { id: '협력 프로그램', name: '협력 프로그램' },
+  { id: '탄소중립 기술', name: '탄소중립 기술' },
+  { id: '기후과학 연구', name: '기후과학 연구' },
 ];
 
 const leftLinks = [
@@ -37,70 +38,21 @@ const leftLinks = [
   { name: '탄소 흡수원', count: 2, postId: 5 }
 ];
 
-const mockPosts: BoardPost[] = [
-  {
-    id: 1,
-    title: '탄소포집 및 활용 기술 연구 동향',
-    content: '최신 탄소포집 기술의 발전 현황과 활용 방안에 대한 연구 결과를 공유합니다.',
-    link: 'https://example.com/carbon-capture',
-    category: 'link1',
-    created_at: '2024-06-10'
-  },
-  {
-    id: 2,
-    title: '친환경 건축 재료 개발 프로젝트',
-    content: '지속가능한 건축을 위한 친환경 소재 개발에 대한 최신 연구 성과입니다.',
-    link: 'https://example.com/green-materials',
-    category: 'link1',
-    created_at: '2024-06-09'
-  },
-  {
-    id: 3,
-    title: '바이오 연료 기술 백서 2024',
-    content: '바이오 연료 기술의 현황과 미래 전망에 대한 종합 보고서입니다.',
-    link: 'https://example.com/biofuel-report',
-    category: 'link2',
-    created_at: '2024-06-08'
-  },
-  {
-    id: 4,
-    title: '국제 탄소중립 연구 협력 네트워크',
-    content: '글로벌 탄소중립 연구 기관들과의 협력 플랫폼입니다.',
-    link: 'https://global-carbon-neutral.org',
-    category: 'link2',
-    created_at: '2024-06-07'
-  },
-  {
-    id: 5,
-    title: '에너지 효율성 향상 기술 세미나',
-    content: '차세대 에너지 효율 기술에 대한 전문가 세미나 자료를 공유합니다.',
-    link: 'https://example.com/energy-efficiency',
-    category: 'link3',
-    created_at: '2024-06-06'
-  },
-  {
-    id: 6,
-    title: '탄소 중립 촉매 기술 실험 결과',
-    content: '혁신적인 촉매 기술을 통한 탄소 중립 달성 가능성을 보여주는 실험 결과입니다.',
-    link: 'https://example.com/catalyst-tech',
-    category: 'link4',
-    created_at: '2024-06-05'
-  }
-];
+const mockPosts: BoardPost[] = [];
 
 export default function CarbonTechPage() {
-  const [activeCategory, setActiveCategory] = useState('link1');
+  const [activeCategory, setActiveCategory] = useState('탄소중립 기술');
   const [selectedLink, setSelectedLink] = useState('기타, 환경, 과정 등');
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     fetchLinkPosts();
-  }, []);
+  }, [activeCategory]);
 
   const fetchLinkPosts = async () => {
     try {
-      const response = await fetch('/api/public/link-posts');
+      const response = await fetch(`/api/public/link-posts?section=${activeCategory}`);
       if (response.ok) {
         const data = await response.json();
         // 링크 게시글을 BoardPost 형식으로 변환
@@ -110,7 +62,7 @@ export default function CarbonTechPage() {
           content: post.content,
           link: post.link_url,
           image: post.image_url,
-          category: 'link1', // 모든 링크 게시글은 link1 카테고리로 설정
+          category: activeCategory,
           created_at: post.created_at,
           main_category: post.main_category,
           sub_category: post.sub_category
