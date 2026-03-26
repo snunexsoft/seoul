@@ -9,6 +9,7 @@ interface LinkPost {
   image_url?: string;
   main_category?: string;
   sub_category?: string;
+  section?: string;
   status: string;
   created_at: string;
 }
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const main_category = searchParams.get('main_category');
     const sub_category = searchParams.get('sub_category');
+    const section = searchParams.get('section');
 
     let query = `
       SELECT * FROM link_posts 
@@ -26,6 +28,11 @@ export async function GET(request: NextRequest) {
     `;
     const params: string[] = [];
     let paramIndex = 1;
+
+    if (section) {
+      query += ` AND section = $${paramIndex++}`;
+      params.push(section);
+    }
 
     if (main_category) {
       query += ` AND main_category = $${paramIndex++}`;
