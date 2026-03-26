@@ -33,6 +33,10 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchPost();
+  }, [postId]);
+
   const fetchPost = async () => {
     try {
       const response = await fetch(`/api/post/${postId}`);
@@ -68,7 +72,7 @@ export default function PostDetailPage() {
 
   const handleDownload = () => {
     if (post?.attachment_filepath) {
-      window.location.href = `http://localhost:10000/api/posts/${post.id}/download`;
+      window.location.href = `/api/posts/${post.id}/download`;
     }
   };
 
@@ -160,7 +164,7 @@ export default function PostDetailPage() {
               {post.featured_image && (
                 <div className="px-6 py-4 border-b border-gray-200">
                   <img
-                    src={post.featured_image.startsWith('http') ? post.featured_image : `http://localhost:10000${post.featured_image}`}
+                    src={post.featured_image.startsWith('http') ? post.featured_image : `${post.featured_image}`}
                     alt={post.title}
                     className="max-w-full h-auto rounded-lg"
                   />
