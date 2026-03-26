@@ -30,20 +30,19 @@ const categories = [
 const mockPosts: BoardPost[] = [];
 
 export default function CarbonTechPage() {
-  const [activeCategory, setActiveCategory] = useState('탄소중립 기술');
+  const [activeCategory, setActiveCategory] = useState('');
   const [selectedLink, setSelectedLink] = useState('');
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab');
-    if (tab) {
-      setActiveCategory(tab);
-    }
+    const tab = params.get('tab') || '탄소중립 기술';
+    setActiveCategory(tab);
   }, []);
 
   useEffect(() => {
+    if (!activeCategory) return;
     setSelectedLink('');
     fetchLinkPosts();
   }, [activeCategory]);
