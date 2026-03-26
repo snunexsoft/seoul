@@ -963,17 +963,17 @@ const Home = () => {
             <div className="icon-grid">
               {[
                 { name: '온실가스 배출량', img: '1.png', href: '/greenhouse-gas' },
-                { name: '온실가스 감축활동', img: '2.png', href: '#' },
+                { name: '온실가스 감축활동', img: '2.png', href: '/board/emission_reduce' },
                 { name: '온실가스 맵', img: '3.png', href: '#' },
                 { name: '에너지', img: '4.png', href: '/energy' },
                 { name: '태양광 발전', img: '5.png', href: '/solar-power' },
                 { name: '전력사용량', img: '6.png', href: '#' },
-                { name: '친환경 학생 활동', img: '8.png', href: '#' },
+                { name: '친환경 학생 활동', img: '8.png', href: '/board/green_campus_group' },
                 { name: '그린리더십', img: '9.png', href: '#' },
-                { name: '그린레포트', img: '10.png', href: '#' },
+                { name: '그린레포트', img: '10.png', href: '/board/green-report' },
                 { name: '인포그래픽', img: '11.png', href: '/infographic' },
                 { name: '자료실', img: '12.png', href: '#' },
-                { name: '지속가능성 보고서', img: '1.png', href: '#' }
+                { name: '지속가능성 보고서', img: '1.png', href: '/board/research' }
               ].map((item, index) => (
                 <a 
                   key={index} 
