@@ -161,7 +161,7 @@ export default function CarbonTechPage() {
           <div className="max-w-[1200px] mx-auto flex">
             {/* 왼쪽 카테고리 링크 */}
             <div className="w-[280px] pr-8">
-              <h3 className="text-xl font-bold text-[#6ECD8E] mb-6">연구 분야</h3>
+              <h3 className="text-xl font-bold text-[#6ECD8E] mb-6">{activeCategory}</h3>
               <div className="space-y-2">
                 {leftLinks.length === 0 && !loading && (
                   <p className="text-gray-400 text-sm p-4">등록된 게시글이 없습니다.</p>
