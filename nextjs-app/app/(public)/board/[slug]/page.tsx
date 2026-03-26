@@ -53,8 +53,8 @@ export default function BoardPage() {
       const postsRes = await fetch(`/api/boards/${slug}/posts?page=${page}&limit=9`);
       if (!postsRes.ok) throw new Error('Failed to fetch posts');
       const postsData = await postsRes.json();
-      setPosts(postsData.posts || []);
-      setTotalPages(Math.ceil((postsData.total || 0) / 9));
+      setPosts(Array.isArray(postsData) ? postsData : (postsData.posts || []));
+      setTotalPages(Array.isArray(postsData) ? Math.ceil(postsData.length / 9) : Math.ceil((postsData.total || 0) / 9));
     } catch (error) {
       console.error('Error fetching board data:', error);
     } finally {
