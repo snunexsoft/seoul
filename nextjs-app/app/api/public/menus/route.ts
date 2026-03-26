@@ -99,7 +99,7 @@ export async function POST(request: Request) {
       [parentId]
     );
 
-    if (existing && existing.length > 0) {
+    if (existing && existing.length >= 5) {
       return NextResponse.json({ message: '이미 서브메뉴가 존재합니다', existing });
     }
 
