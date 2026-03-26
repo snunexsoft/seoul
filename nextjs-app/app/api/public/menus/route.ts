@@ -74,3 +74,24 @@ export async function GET() {
     return NextResponse.json({ error: '메뉴를 불러오는데 실패했습니다' }, { status: 500 });
   }
 }
+// POST - DB 마이그레이션: link_posts에 section 컬럼 추가
+export async function POST(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const key = searchParams.get('key');
+  if (key !== 'migrate-section-2026') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // section 컬럼 추가
+    await dbQuery.run("ALTER TABLE link_posts ADD COLUMN IF NOT EXISTS section VARCHAR(100) DEFAULT '탄소중립 기술'");
+    
+    // 기존 데이터 업데이트
+    await dbQuery.run("UPDATE link_posts SET section = '탄소중립 기술' WHERE section IS NULL OR section = '탄소중립 기술'");
+
+    const posts = await dbQuery.all("SELECT id, title, section FROM link_posts");
+    return NextResponse.json({ success: true, message: 'section 컬럼 추가 완료', posts });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
