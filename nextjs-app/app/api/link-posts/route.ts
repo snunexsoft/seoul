@@ -9,6 +9,7 @@ interface LinkPost {
   image_url?: string;
   main_category: string;
   sub_category: string;
+  section?: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, content, link_url, image_url, main_category, sub_category, status } = body;
+    const { title, content, link_url, image_url, main_category, sub_category, status, section } = body;
 
     if (!title || !content || !link_url || !main_category || !sub_category) {
       return NextResponse.json(
@@ -96,10 +97,10 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await dbQuery.run(
-      `INSERT INTO link_posts (title, content, link_url, image_url, main_category, sub_category, status, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      `INSERT INTO link_posts (title, content, link_url, image_url, main_category, sub_category, status, section, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
        RETURNING *`,
-      [title, content, link_url, image_url || null, main_category, sub_category, status || 'published']
+      [title, content, link_url, image_url || null, main_category, sub_category, status || 'published', section || '탄소중립 기술']
     );
 
     return NextResponse.json(result.rows[0], { status: 201 });
