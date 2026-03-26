@@ -51,7 +51,7 @@ export default function InfographicPage() {
         params.append('search', searchTerm);
       }
 
-      const response = await fetch(`/api/boards/infographic/posts?${params}`);
+      const response = await fetch(`/api/boards/info/posts?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
@@ -59,7 +59,7 @@ export default function InfographicPage() {
 
       const data: ApiResponse = await response.json();
       
-      setPosts(data.posts);
+      setPosts(Array.isArray(data) ? data : (data.posts || []));
       setTotalPages(data.totalPages);
       setLoading(false);
     } catch (error) {
