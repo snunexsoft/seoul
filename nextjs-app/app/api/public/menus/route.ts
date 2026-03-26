@@ -103,6 +103,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: '이미 서브메뉴가 존재합니다', existing });
     }
 
+    // 시퀀스 리셋
+    await dbQuery.run("SELECT setval(pg_get_serial_sequence('menus', 'id'), (SELECT MAX(id) FROM menus))");
+
     const subMenus = [
       { name: '연구자 소개', url: '/researcher-network', type: 'page', sort_order: 0 },
       { name: '연구 프로젝트', url: '/research-projects', type: 'page', sort_order: 1 },
