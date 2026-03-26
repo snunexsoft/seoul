@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage = '' }) => {
         if (typeof window !== 'undefined') {
           try {
             localStorage.setItem('cached-menus', JSON.stringify(data));
-            localStorage.setItem('cached-menus-expiry', String(new Date().getTime() + 3600000));
+            localStorage.setItem('cached-menus-expiry', String(new Date().getTime() + 300000));
           } catch (error) {
             console.error('캐시 저장 실패:', error);
           }
