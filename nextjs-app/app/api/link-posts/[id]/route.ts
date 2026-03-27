@@ -52,7 +52,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, content, link_url, image_url, main_category, sub_category, status } = body;
+    const { title, content, link_url, image_url, main_category, sub_category, status, section } = body;
 
     if (!title || !content || !link_url || !main_category || !sub_category) {
       return NextResponse.json(
@@ -64,10 +64,10 @@ export async function PUT(
     const result = await dbQuery.run(
       `UPDATE link_posts
        SET title = $1, content = $2, link_url = $3, image_url = $4,
-           main_category = $5, sub_category = $6, status = $7, updated_at = NOW()
-       WHERE id = $8
+           main_category = $5, sub_category = $6, status = $7, section = $8, updated_at = NOW()
+       WHERE id = $9
        RETURNING *`,
-      [title, content, link_url, image_url || null, main_category, sub_category, status || 'published', parseInt(id)]
+      [title, content, link_url, image_url || null, main_category, sub_category, status || 'published', section || '탄소중립 기술', parseInt(id)]
     );
 
     if (result.rowCount === 0) {
