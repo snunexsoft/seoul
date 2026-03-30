@@ -141,17 +141,17 @@ function CarbonTechContent() {
         </section>
 
         {/* Tab Menu */}
-        <section className="bg-white mb-[50px] mt-[30px]">
+        <section className="bg-white border-b border-gray-200 mb-[50px] mt-[30px]">
           <div className="max-w-[1200px] mx-auto">
-            <div className="flex space-x-3 p-2">
+            <div className="flex space-x-2 p-2">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleTabChange(category.id, category.name)}
-                  className={`flex-1 px-6 py-4 text-base font-semibold transition-all duration-200 rounded-full border ${
+                  className={`px-8 py-4 text-lg font-semibold transition-all duration-200 rounded-lg border-b-3 ${
                     activeCategory === category.id
-                      ? 'text-white bg-[#B8E6A0] border-[#B8E6A0] shadow-sm'
-                      : 'text-gray-500 bg-white border-gray-300 hover:text-[#6ECD8E] hover:border-[#6ECD8E]'
+                      ? 'text-[#6ECD8E] border-[#6ECD8E] bg-[#F5FDE7] shadow-sm'
+                      : 'text-gray-600 border-transparent hover:text-[#6ECD8E] hover:bg-gray-50'
                   }`}
                 >
                   {category.name}
