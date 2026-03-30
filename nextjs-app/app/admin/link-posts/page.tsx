@@ -18,36 +18,11 @@ interface LinkPost {
   updated_at: string;
 }
 
-interface Category {
-  main: string;
-  subs: string[];
-}
-
-const categories: Category[] = [
-  {
-    main: '기타, 환경, 과정 등',
-    subs: ['환경 정책', '연구 과정', '기타 분야']
-  },
-  {
-    main: '탄소 포집, 저장 활용 및 처리',
-    subs: ['탄소 포집 기술', '탄소 저장 기술', '탄소 활용 기술']
-  },
-  {
-    main: '무탄소 전력 공급',
-    subs: ['태양광 발전', '풍력 발전', '수력 발전', '원자력 발전']
-  },
-  {
-    main: '청정 열 및 전기화',
-    subs: ['열펌프 기술', '전기화 시설', '청정 난방']
-  },
-  {
-    main: '바이오매스 모빌 건설시스템',
-    subs: ['바이오매스 기술', '친환경 건설', '모빌리티']
-  },
-  {
-    main: '화학적 에너지 기술 관리',
-    subs: ['수소 에너지', '화학 저장', '에너지 변환']
-  }
+const sections = [
+  '탄소중립기술개발',
+  '탄소중립정책연구',
+  '기후과학연구',
+  '인문사회학적접근'
 ];
 
 const LinkPostsPage = () => {
@@ -63,7 +38,7 @@ const LinkPostsPage = () => {
     image_url: '',
     main_category: '',
     sub_category: '',
-    section: '탄소중립 기술',
+    section: '탄소중립기술개발',
     status: 'published' as 'published' | 'draft'
   });
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -198,7 +173,7 @@ const LinkPostsPage = () => {
       image_url: '',
       main_category: '',
       sub_category: '',
-      section: '탄소중립 기술',
+      section: '탄소중립기술개발',
       status: 'published'
     });
   };
@@ -209,13 +184,8 @@ const LinkPostsPage = () => {
     resetForm();
   };
 
-  const getSubCategories = (mainCategory: string) => {
-    const category = categories.find(cat => cat.main === mainCategory);
-    return category ? category.subs : [];
-  };
-
-  const filteredPosts = filterCategory 
-    ? posts.filter(post => post.main_category === filterCategory)
+  const filteredPosts = filterCategory
+    ? posts.filter(post => post.section === filterCategory)
     : posts;
 
   if (loading) {
@@ -249,18 +219,18 @@ const LinkPostsPage = () => {
             </div>
           )}
 
-          {/* 카테고리 필터 */}
+          {/* 대분류 필터 */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">카테고리별 필터</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">대분류별 필터</label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">전체 카테고리</option>
-              {categories.map((category) => (
-                <option key={category.main} value={category.main}>
-                  {category.main}
+              <option value="">전체</option>
+              {sections.map((section) => (
+                <option key={section} value={section}>
+                  {section}
                 </option>
               ))}
             </select>
@@ -275,10 +245,10 @@ const LinkPostsPage = () => {
                     제목
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    대분류
+                    대분류(탭)
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    중분류
+                    중분류(사이드바)
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     상태
@@ -317,10 +287,10 @@ const LinkPostsPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {post.main_category}
+                      {post.section || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {post.sub_category}
+                      {post.main_category}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -419,44 +389,44 @@ const LinkPostsPage = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">대분류 (탭)</label>
+                <select
+                  value={formData.section}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  {sections.map((section) => (
+                    <option key={section} value={section}>
+                      {section}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">대분류</label>
-                  <select
+                  <label className="block text-sm font-medium text-gray-700 mb-1">중분류 (사이드바 제목)</label>
+                  <input
+                    type="text"
                     value={formData.main_category}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      main_category: e.target.value,
-                      sub_category: '' // 대분류 변경시 중분류 초기화
-                    }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, main_category: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="예: 수소, 탄소 포집 전환 활용 및 저장"
                     required
-                  >
-                    <option value="">대분류 선택</option>
-                    {categories.map((category) => (
-                      <option key={category.main} value={category.main}>
-                        {category.main}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">중분류</label>
-                  <select
+                  <label className="block text-sm font-medium text-gray-700 mb-1">부제목 (선택사항)</label>
+                  <input
+                    type="text"
                     value={formData.sub_category}
                     onChange={(e) => setFormData(prev => ({ ...prev, sub_category: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    required
-                    disabled={!formData.main_category}
-                  >
-                    <option value="">중분류 선택</option>
-                    {getSubCategories(formData.main_category).map((sub) => (
-                      <option key={sub} value={sub}>
-                        {sub}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="예: 생산, 운반, 저장 등"
+                  />
                 </div>
               </div>
 

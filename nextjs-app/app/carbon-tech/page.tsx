@@ -80,10 +80,14 @@ function CarbonTechContent() {
   };
 
   // 현재 탭 게시글의 main_category에서 동적으로 사이드 메뉴 생성
-  const leftLinks = Array.from(new Set(posts.map(p => p.main_category).filter(Boolean))).map(name => ({
-    name: name as string,
-    count: posts.filter(p => p.main_category === name).length
-  }));
+  const leftLinks = Array.from(new Set(posts.map(p => p.main_category).filter(Boolean))).map(name => {
+    const post = posts.find(p => p.main_category === name);
+    return {
+      name: name as string,
+      subtitle: post?.sub_category || '',
+      count: posts.filter(p => p.main_category === name).length
+    };
+  });
 
   // 첫 번째 카테고리 자동 선택
   useEffect(() => {
@@ -181,11 +185,13 @@ function CarbonTechContent() {
                         : 'bg-white text-gray-700 hover:bg-[#F5FDE7] border-gray-200 hover:border-[#6ECD8E]'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
+                    <div>
                       <span className="text-sm font-medium leading-tight">{link.name}</span>
-                      <span className="text-xs opacity-75 ml-2">
-                        {link.count}
-                      </span>
+                      {link.subtitle && (
+                        <p className={`text-xs mt-1 ${
+                          selectedLink === link.name ? 'text-white/70' : 'text-gray-400'
+                        }`}>{link.subtitle}</p>
+                      )}
                     </div>
                   </div>
                 ))}

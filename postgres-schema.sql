@@ -205,7 +205,9 @@ CREATE TABLE IF NOT EXISTS link_posts (
     link_url VARCHAR(1000) NOT NULL,
     image_url VARCHAR(500),
     main_category VARCHAR(255) NOT NULL,
-    sub_category VARCHAR(255) NOT NULL,
+    sub_category VARCHAR(255),
+    section VARCHAR(255) DEFAULT '탄소중립기술개발',
+    order_index INTEGER DEFAULT 0,
     status VARCHAR(50) DEFAULT 'published' CHECK (status IN ('published', 'draft')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -217,6 +219,7 @@ CREATE INDEX IF NOT EXISTS idx_menus_is_active ON menus(is_active);
 CREATE INDEX IF NOT EXISTS idx_history_year ON history(year);
 CREATE INDEX IF NOT EXISTS idx_history_sort ON history(year, sort_order);
 CREATE INDEX IF NOT EXISTS idx_posts_view_count ON posts(view_count DESC);
+CREATE INDEX IF NOT EXISTS idx_link_posts_section ON link_posts(section);
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 CREATE INDEX IF NOT EXISTS idx_posts_board_id ON posts(board_id);
 CREATE INDEX IF NOT EXISTS idx_energy_data_year_month ON energy_data(year, month);
