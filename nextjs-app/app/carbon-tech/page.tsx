@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import Header from '../../components/Header';
 
@@ -18,11 +18,10 @@ interface BoardPost {
 }
 
 const categories = [
-  { id: '연구자 소개', name: '연구자 소개' },
-  { id: '연구 프로젝트', name: '연구 프로젝트' },
-  { id: '협력 프로그램', name: '협력 프로그램' },
-  { id: '탄소중립 기술', name: '탄소중립 기술' },
-  { id: '기후과학 연구', name: '기후과학 연구' },
+  { id: '탄소중립기술개발', name: '탄소중립기술개발' },
+  { id: '탄소중립정책연구', name: '탄소중립정책연구' },
+  { id: '기후과학연구', name: '기후과학연구' },
+  { id: '인문사회학적접근', name: '인문사회학적접근' }
 ];
 
 
@@ -30,14 +29,21 @@ const categories = [
 const mockPosts: BoardPost[] = [];
 
 export default function CarbonTechPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [activeCategory, setActiveCategory] = useState('');
   const [selectedLink, setSelectedLink] = useState('');
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
+  const handleTabChange = (categoryId: string, categoryName: string) => {
+    setActiveCategory(categoryId);
+    router.replace(`/carbon-tech?tab=${encodeURIComponent(categoryName)}`, { scroll: false });
+  };
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab') || '탄소중립 기술';
+    const tab = searchParams.get('tab') || '탄소중립기술개발';
     setActiveCategory(tab);
   }, []);
 
@@ -72,7 +78,7 @@ export default function CarbonTechPage() {
       setLoading(false);
     }
   };
-  
+
   // 현재 탭 게시글의 main_category에서 동적으로 사이드 메뉴 생성
   const leftLinks = Array.from(new Set(posts.map(p => p.main_category).filter(Boolean))).map(name => ({
     name: name as string,
@@ -105,7 +111,7 @@ export default function CarbonTechPage() {
           font-weight: 700;
           font-style: normal;
         }
-        
+
         body {
           font-family: 'SUIT', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
         }
@@ -135,17 +141,17 @@ export default function CarbonTechPage() {
         </section>
 
         {/* Tab Menu */}
-        <section className="bg-white border-b border-gray-200 mb-[50px] mt-[30px]">
+        <section className="bg-white mb-[50px] mt-[30px]">
           <div className="max-w-[1200px] mx-auto">
-            <div className="flex space-x-2 p-2">
+            <div className="flex space-x-3 p-2">
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
-                  className={`px-8 py-4 text-lg font-semibold transition-all duration-200 rounded-lg border-b-3 ${
+                  onClick={() => handleTabChange(category.id, category.name)}
+                  className={`flex-1 px-6 py-4 text-base font-semibold transition-all duration-200 rounded-full border ${
                     activeCategory === category.id
-                      ? 'text-[#6ECD8E] border-[#6ECD8E] bg-[#F5FDE7] shadow-sm'
-                      : 'text-gray-600 border-transparent hover:text-[#6ECD8E] hover:bg-gray-50'
+                      ? 'text-white bg-[#B8E6A0] border-[#B8E6A0] shadow-sm'
+                      : 'text-gray-500 bg-white border-gray-300 hover:text-[#6ECD8E] hover:border-[#6ECD8E]'
                   }`}
                 >
                   {category.name}
@@ -209,7 +215,7 @@ export default function CarbonTechPage() {
                       <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                     </div>
                   )}
-                  
+
                   {/* 게시물 정보 */}
                   <div className="p-8">
                     <h4 className="text-2xl font-bold text-[#6ECD8E] mb-3">
@@ -221,7 +227,7 @@ export default function CarbonTechPage() {
                     <p className="text-gray-700 mb-6 leading-relaxed text-lg">
                       {selectedPost.content}
                     </p>
-                    
+
                     {/* 링크 */}
                     {selectedPost.link && (
                       <a
@@ -251,12 +257,12 @@ export default function CarbonTechPage() {
           0%, 100% { transform: translateY(0px) scale(1); }
           50% { transform: translateY(-20px) scale(1.1); }
         }
-        
+
         @keyframes float2 {
           0%, 100% { transform: translateY(0px) scale(1); }
           50% { transform: translateY(-15px) scale(0.9); }
         }
-        
+
         @keyframes float3 {
           0%, 100% { transform: translateX(-50%) translateY(0px) scale(1); }
           50% { transform: translateX(-50%) translateY(-25px) scale(1.05); }
@@ -264,4 +270,4 @@ export default function CarbonTechPage() {
       `}</style>
     </div>
   );
-} 
+}
