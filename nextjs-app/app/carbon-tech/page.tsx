@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import Header from '../../components/Header';
@@ -28,7 +28,7 @@ const categories = [
 
 const mockPosts: BoardPost[] = [];
 
-export default function CarbonTechPage() {
+function CarbonTechContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -269,5 +269,13 @@ export default function CarbonTechPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function CarbonTechPage() {
+  return (
+    <Suspense>
+      <CarbonTechContent />
+    </Suspense>
   );
 }
